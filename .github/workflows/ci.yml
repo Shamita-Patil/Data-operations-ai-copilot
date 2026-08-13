@@ -12,6 +12,35 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: Data_ops_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d Data_ops_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      APP_NAME: "Data Operations AI Copilot"
+      API_VERSION: "v1"
+      DEBUG: "false"
+      HOST: "127.0.0.1"
+      PORT: "8000"
+      DATABASE_URL: "postgresql+psycopg://postgres:postgres@localhost:5432/Data_ops_test"
+      REDIS_URL: "redis://localhost:6379/0"
+      JWT_SECRET: "ci-test-secret"
+      GEMINI_API_KEY: "ci-test-key"
+      LANGSMITH_TRACING: "false"
+      LANGSMITH_API_KEY: "ci-test-key"
+      LANGSMITH_PROJECT: "ci-test"
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,20 +56,6 @@ jobs:
           pip install -r backend/requirements.txt
 
       - name: Run tests
-        env:
-          APP_NAME: "Data Operations AI Copilot"
-          API_VERSION: "v1"
-          DEBUG: "false"
-          HOST: "127.0.0.1"
-          PORT: "8000"
-          DATABASE_URL: "sqlite:///./test.db"
-          REDIS_URL: "redis://localhost:6379/0"
-          JWT_SECRET: "ci-test-secret"
-          GEMINI_API_KEY: "ci-test-key"
-          LANGSMITH_TRACING: "false"
-          LANGSMITH_API_KEY: "ci-test-key"
-          LANGSMITH_PROJECT: "ci-test"
-
         run: |
           pytest backend/tests
 
@@ -55,5 +70,6 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
+            -f backend/Dockerfile \
             -t data-operations-ai-copilot:${{ github.sha }} \
-            ./backend
+            .
