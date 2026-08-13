@@ -1,0 +1,47 @@
+﻿# Python virtual environments
+langraph_fin/
+.venv/
+venv/
+env/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.class
+
+# Coverage
+.coverage
+.coverage.*
+.coverage.xml
+.pytest_cache/
+htmlcov/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Build / distribution
+build/
+dist/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
