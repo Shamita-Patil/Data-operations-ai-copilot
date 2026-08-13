@@ -67,7 +67,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest backend/tests
+          pytest backend/tests -o addopts=""
 
   docker-build:
     runs-on: ubuntu-latest
