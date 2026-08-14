@@ -1,6 +1,6 @@
 from backend.app.rag.embeddings import get_embeddings
 from backend.app.rag.vectorstore import VECTORSTORE_PATH
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 
 
 def get_retriever(
