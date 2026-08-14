@@ -4,82 +4,140 @@ on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
 
+
 jobs:
+
   test:
+
     runs-on: ubuntu-latest
 
     services:
+
       postgres:
         image: postgres:16
+
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: Data_ops_test
+
         ports:
           - 5432:5432
+
         options: >-
           --health-cmd="pg_isready -U postgres -d Data_ops_test"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
 
+
       redis:
         image: redis:7
+
         ports:
           - 6379:6379
+
         options: >-
           --health-cmd="redis-cli ping"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=5 
+          --health-retries=5
+
 
     env:
+
       APP_NAME: "Data Operations AI Copilot"
       API_VERSION: "v1"
       DEBUG: "false"
+
       HOST: "127.0.0.1"
       PORT: "8000"
+
       DATABASE_URL: "postgresql+psycopg://postgres:postgres@localhost:5432/Data_ops_test"
+
       REDIS_URL: "redis://localhost:6379/0"
+
       JWT_SECRET: "ci-test-secret"
+
       GEMINI_API_KEY: "ci-test-key"
+
       LANGSMITH_TRACING: "false"
       LANGSMITH_API_KEY: "ci-test-key"
       LANGSMITH_PROJECT: "ci-test"
 
+
     steps:
+
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
+
         with:
           python-version: "3.11"
+
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
 
+
       - name: Run tests
         run: |
           pytest backend/tests -o addopts=""
 
-  docker-build:
+
+  docker-build-publish:
+
     runs-on: ubuntu-latest
+
     needs: test
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    permissions:
+      contents: read
+      packages: write
 
-      - name: Build Docker image
-        run: |
-          docker build \
-            -f backend/Dockerfile \
-            -t data-operations-ai-copilot:${{ github.sha }} \
-            .
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+
+        with:
+          images: ghcr.io/${{ github.repository }}
+
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+
+        with:
+          context: .
+          file: ./backend/Dockerfile
+          push: true
+
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
+
+          labels: ${{ steps.meta.outputs.labels }}
