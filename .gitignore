@@ -45,3 +45,6 @@ dist/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Local RAG vector store
+backend/app/rag/chroma_db/
