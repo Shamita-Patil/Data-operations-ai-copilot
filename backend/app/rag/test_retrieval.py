@@ -3,45 +3,47 @@ from backend.app.rag.retriever import get_retriever
 
 def main():
 
-    retriever = get_retriever(
-        k=4
-    )
+    retriever = get_retriever(k=4)
 
-    query = (
-        "What is discussed about "
-        "RAG and LangChain?"
-    )
+    queries = [
+        "What is discussed about RAG and LangChain?",
+        "What are the main concepts explained in the document?",
+        "What does the document say about retrieval?"
+    ]
 
-    documents = retriever.invoke(
-        query
-    )
+    for query in queries:
 
-    print(
-        f"Retrieved chunks: {len(documents)}"
-    )
+        print("\n" + "=" * 80)
+        print(f"QUERY: {query}")
+        print("=" * 80)
 
-    for index, document in enumerate(
-        documents,
-        start=1,
-    ):
+        documents = retriever.invoke(query)
 
         print(
-            f"\n--- Chunk {index} ---"
+            f"Retrieved chunks: {len(documents)}"
         )
 
-        print(
-            document.page_content[:1000]
-        )
+        for index, document in enumerate(
+            documents,
+            start=1,
+        ):
 
-        print(
-            "\nMetadata:"
-        )
+            print(
+                f"\n--- RESULT {index} ---"
+            )
 
-        print(
-            document.metadata
-        )
+            print(
+                document.page_content[:700]
+            )
+
+            print(
+                "\nMETADATA:"
+            )
+
+            print(
+                document.metadata
+            )
 
 
 if __name__ == "__main__":
-
     main()

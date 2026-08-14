@@ -1,11 +1,24 @@
-from backend.app.rag.chunker import chunk_documents
-from backend.app.rag.loader import load_pdf
-from backend.app.rag.vectorstore import create_vectorstore
+import pickle
+from pathlib import Path
+
+from backend.app.rag.chunker import (
+    chunk_documents,
+)
+from backend.app.rag.loader import (
+    load_pdf,
+)
+from backend.app.rag.vectorstore import (
+    create_vectorstore,
+)
 
 
 PDF_PATH = (
     "backend/uploads/"
     "IP_RAGs_and_LangChain_Part_2.pdf"
+)
+
+CHUNKS_PATH = Path(
+    "backend/app/rag/chunks.pkl"
 )
 
 
@@ -31,8 +44,22 @@ def ingest_pdf():
         chunks
     )
 
+    with open(
+        CHUNKS_PATH,
+        "wb",
+    ) as file:
+
+        pickle.dump(
+            chunks,
+            file,
+        )
+
     print(
         "Vector store created successfully."
+    )
+
+    print(
+        "Chunks saved successfully."
     )
 
 

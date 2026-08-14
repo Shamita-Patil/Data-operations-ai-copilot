@@ -16,4 +16,7 @@ def chunk_documents(
         documents
     )
 
+    for chunk in chunks:
+        chunk.metadata["document_type"] = "pdf"
+
     return chunks
