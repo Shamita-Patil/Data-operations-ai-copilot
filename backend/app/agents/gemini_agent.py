@@ -151,10 +151,36 @@ def structured_response_node(
     state: AgentState,
 ):
 
-    last_message = state["messages"][-1]
+    messages = state["messages"]
+
+    last_message = messages[-1]
 
     response = structured_llm.invoke(
-        str(last_message.content)
+        [
+            {
+                "role": "system",
+                "content": """
+You are the final response formatter for an
+enterprise Data Operations AI assistant.
+
+When retrieved enterprise documents are present:
+
+1. Answer using only the retrieved information.
+2. Do not invent facts.
+3. Include source references when available.
+4. Use the page number provided by the retrieval tool.
+5. If the retrieved context does not contain the answer,
+   clearly state that the available documents do not
+   provide enough information.
+
+Return a concise, accurate response.
+""",
+            },
+            {
+                "role": "user",
+                "content": str(last_message.content),
+            },
+        ]
     )
 
     return {
